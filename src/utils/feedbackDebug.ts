@@ -19,35 +19,35 @@ export const debugFeedbackSystem = async () => {
     console.error('Error accessing feedbacks table:', error);
   }
   
-  // 3. Test insert permission with dummy data
-  try {
-    const testData = {
-      customer_name: 'Debug User',
-      message: 'Debug message for testing',
-      rating: 5
-    };
+  // 3. Test insert permission with dummy data (commented out)
+  // try {
+  //   const testData = {
+  //     customer_name: 'Debug User',
+  //     message: 'Debug message for testing',
+  //     rating: 5
+  //   };
     
-    console.log('Testing insert with:', testData);
+  //   console.log('Testing insert with:', testData);
     
-    const { data, error } = await supabase
-      .from('feedbacks')
-      .insert(testData)
-      .select()
-      .single();
+  //   const { data, error } = await supabase
+  //     .from('feedbacks')
+  //     .insert(testData)
+  //     .select()
+  //     .single();
     
-    if (error) {
-      console.error('Insert test failed:', error);
-    } else {
-      console.log('Insert test successful:', data);
-      // Clean up the test data
-      await supabase
-        .from('feedbacks')
-        .delete()
-        .eq('id', data.id);
-    }
-  } catch (error) {
-    console.error('Error testing insert:', error);
-  }
+  //   if (error) {
+  //     console.error('Insert test failed:', error);
+  //   } else {
+  //     console.log('Insert test successful:', data);
+  //     // Clean up test data
+  //     await supabase
+  //       .from('feedbacks')
+  //       .delete()
+  //       .eq('id', data.id);
+  //   }
+  // } catch (error) {
+  //   console.error('Error testing insert:', error);
+  // }
   
   console.log('=== End Debug ===');
 };
