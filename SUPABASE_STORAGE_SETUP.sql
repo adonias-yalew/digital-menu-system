@@ -13,6 +13,12 @@ VALUES (
 ON CONFLICT (id) DO NOTHING;
 
 -- Set up Row Level Security (RLS) policies for the bucket
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Allow public access to images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow authenticated users to upload images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow users to update their own images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow users to delete their own images" ON storage.objects;
+
 -- Allow public access to read images
 CREATE POLICY "Allow public access to images" ON storage.objects
 FOR SELECT USING (bucket_id = 'menu-images');

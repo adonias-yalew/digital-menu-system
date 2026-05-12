@@ -6,6 +6,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { createFeedback, getFeedbacks, getFeedbackStats } from "@/services/feedbackService";
 import { Feedback as FeedbackType } from "@/types/menu";
 import { sanitizeName, sanitizeEmail, sanitizeMessage, sanitizeRating } from "@/utils/sanitize";
+import { debugFeedbackSystem } from "@/utils/feedbackDebug";
 
 const ratingLabels = [
   "feedback.poor",
@@ -61,12 +62,15 @@ export default function Feedback() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Debug feedback system
+        await debugFeedbackSystem();
+        
         const [feedbacksData, statsData] = await Promise.all([
           getFeedbacks(),
           getFeedbackStats()
         ]);
         
-        setFeedbacks(feedbacksData.slice(0, 10)); // Show latest 10 feedbacks
+        setFeedbacks(feedbacksData.slice(0, 2)); // Show latest 2 feedbacks
         setStats(statsData);
       } catch (error) {
         console.error('Error loading feedback data:', error);
@@ -81,7 +85,15 @@ export default function Feedback() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!message.trim() || !name.trim() || rating === 0) return;
+    console.log('Submitting feedback:', { name, message: message.trim(), rating });
+
+    if (!message.trim() || rating === 0) {
+      console.log('Validation failed:', { 
+        hasMessage: !!message.trim(), 
+        hasRating: rating > 0 
+      });
+      return;
+    }
 
     setSubmitting(true);
 
@@ -93,6 +105,8 @@ export default function Feedback() {
         rating: sanitizeRating(rating),
       };
 
+      console.log('Sanitized data:', sanitizedData);
+
       // Validate sanitized data
       if (!sanitizedData.message || sanitizedData.rating === 0) {
         console.error('Invalid sanitized data');
@@ -100,9 +114,22 @@ export default function Feedback() {
         return;
       }
 
-      await createFeedback(sanitizedData);
+      const result = await createFeedback(sanitizedData);
+      console.log('Feedback created successfully:', result);
+      
+      // Refresh feedback data
+      const [feedbacksData, statsData] = await Promise.all([
+        getFeedbacks(),
+        getFeedbackStats()
+      ]);
+      setFeedbacks(feedbacksData.slice(0, 2));
+      setStats(statsData);
+      
     } catch (error) {
       console.error('Error submitting feedback:', error);
+      alert(`Failed to submit feedback: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setSubmitting(false);
+      return;
     }
 
     setSubmitted(true);
@@ -133,7 +160,7 @@ export default function Feedback() {
           </div>
 
           <h2 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
-            {t("feedback.thankYou")}
+            Feedback Send
           </h2>
 
           <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
