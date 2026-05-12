@@ -6,7 +6,6 @@ import { useLanguage } from "@/hooks/use-language";
 import { createFeedback, getFeedbacks, getFeedbackStats } from "@/services/feedbackService";
 import { Feedback as FeedbackType } from "@/types/menu";
 import { sanitizeName, sanitizeEmail, sanitizeMessage, sanitizeRating } from "@/utils/sanitize";
-import { debugFeedbackSystem } from "@/utils/feedbackDebug";
 
 const ratingLabels = [
   "feedback.poor",
@@ -62,16 +61,11 @@ export default function Feedback() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Debug feedback system
-        await debugFeedbackSystem();
-        
         const [feedbacksData, statsData] = await Promise.all([
           getFeedbacks(),
           getFeedbackStats()
         ]);
         
-        console.log('Total feedbacks loaded:', feedbacksData.length);
-        console.log('Setting feedbacks to first 2:', feedbacksData.slice(0, 2));
         setFeedbacks(feedbacksData.slice(0, 2)); // Show latest 2 feedbacks
         setStats(statsData);
       } catch (error) {

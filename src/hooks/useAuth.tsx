@@ -61,7 +61,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     };
 
-    initializeAuth();
+    initializeAuth().catch((error) => {
+      console.error('Error initializing auth:', error);
+      if (mounted) {
+        setUser(null);
+        setSession(null);
+        setLoading(false);
+      }
+    });
 
     // Set up auth state listener
     const { data: { subscription } } = onAuthStateChange(async (session) => {

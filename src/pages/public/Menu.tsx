@@ -214,17 +214,7 @@ export default function Menu() {
   useEffect(() => {
     const loadMenuItems = async () => {
       try {
-        // Debug image system
-        await debugImageSystem();
-        
         const menuItems = await getMenuItems();
-        console.log('Loaded menu items:', menuItems);
-        
-        // Test first image URL if exists
-        if (menuItems.length > 0 && menuItems[0].img) {
-          testImageUrl(menuItems[0].img);
-        }
-        
         setItems(menuItems);
       } catch (error) {
         console.error('Error loading menu items:', error);

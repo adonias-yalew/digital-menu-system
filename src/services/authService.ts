@@ -45,7 +45,12 @@ export const getCurrentUser = async (): Promise<User | null> => {
 export const getCurrentSession = async (): Promise<Session | null> => {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) throw error;
+    
+    if (error) {
+      console.error('Error getting current session:', error);
+      return null;
+    }
+    
     return session;
   } catch (error) {
     console.error('Error getting current session:', error);
