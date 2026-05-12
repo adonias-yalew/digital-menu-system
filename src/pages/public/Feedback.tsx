@@ -70,6 +70,8 @@ export default function Feedback() {
           getFeedbackStats()
         ]);
         
+        console.log('Total feedbacks loaded:', feedbacksData.length);
+        console.log('Setting feedbacks to first 2:', feedbacksData.slice(0, 2));
         setFeedbacks(feedbacksData.slice(0, 2)); // Show latest 2 feedbacks
         setStats(statsData);
       } catch (error) {
@@ -122,6 +124,8 @@ export default function Feedback() {
         getFeedbacks(),
         getFeedbackStats()
       ]);
+      console.log('After submission - Total feedbacks:', feedbacksData.length);
+      console.log('After submission - Setting feedbacks to first 2:', feedbacksData.slice(0, 2));
       setFeedbacks(feedbacksData.slice(0, 2));
       setStats(statsData);
       
@@ -258,7 +262,7 @@ export default function Feedback() {
           {/* Recent Feedback */}
           {feedbacks.length > 0 && (
             <div className="rounded-[28px] border border-red-100 bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
-              <h3 className="text-sm font-semibold text-foreground mb-4">Recent Reviews</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-4">Recent Reviews ({feedbacks.length})</h3>
               <div className="space-y-3">
                 {feedbacks.map((feedback) => (
                   <div key={feedback.id} className="border-b border-gray-100 pb-3 last:border-0">
