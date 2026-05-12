@@ -1,8 +1,10 @@
-import { Routes, Route, Outlet, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { LanguageProvider } from "./hooks/use-language";
 import { AuthProvider } from "./hooks/useAuth";
 import BottomNav from "./components/BottomNav";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import LoadingPage from "./components/LoadingPage";
+import { LoadingProvider } from "./contexts/LoadingContext";
 
 // Public pages
 import Menu from "./pages/public/Menu";
