@@ -1,27 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem } from '@/services/menuService';
-
-interface Item {
-  id: string;
-  name: {
-    en: string;
-    am: string;
-    om: string;
-  };
-  description: {
-    en: string;
-    am: string;
-    om: string;
-  };
-  price: number;
-  category: string;
-  img: string;
-  isPopular: boolean;
-  isSpicy: boolean;
-  isVeg: boolean;
-  isNew: boolean;
-}
+import { uploadImage } from '@/services/imageService';
+import { Item } from '@/types/menu';
 
 export default function MenuManager() {
   const [items, setItems] = useState<Item[]>([]);
@@ -58,7 +39,7 @@ export default function MenuManager() {
 
   const handleUpdateItem = async (item: Item) => {
     try {
-      await updateMenuItem(item);
+      await updateMenuItem(item.id, item);
       await loadItems();
       setEditingItem(null);
     } catch (error) {
@@ -256,6 +237,9 @@ function MenuItemForm({
     };
   });
 
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   // -------------------------
   // Helpers
   // -------------------------
@@ -279,6 +263,30 @@ function MenuItemForm({
       },
     }));
   }
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+    setUploading(true);
+
+    try {
+      const imageUrl = await uploadImage(file);
+      updateField('img', imageUrl);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setSelectedFile(null);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedFile(null);
+    updateField('img', '');
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -332,71 +340,94 @@ function MenuItemForm({
 
             {/* NAME */}
             <div className="grid gap-3 md:grid-cols-3">
-              <input
-                type="text"
-                placeholder="English Name"
-                value={formData.name.en}
-                onChange={(e) =>
-                  updateNestedField('name', 'en', e.target.value)
-                }
-                className="rounded-lg border px-3 py-2"
-                required
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  English Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="English Name"
+                  value={formData.name.en}
+                  onChange={(e) =>
+                    updateNestedField('name', 'en', e.target.value)
+                  }
+                  className="w-full rounded-lg border px-3 py-2"
+                  required
+                />
+              </div>
 
-              <input
-                type="text"
-                placeholder="Amharic Name"
-                value={formData.name.am}
-                onChange={(e) =>
-                  updateNestedField('name', 'am', e.target.value)
-                }
-                className="rounded-lg border px-3 py-2"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Amharic Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Amharic Name"
+                  value={formData.name.am}
+                  onChange={(e) =>
+                    updateNestedField('name', 'am', e.target.value)
+                  }
+                  className="w-full rounded-lg border px-3 py-2"
+                />
+              </div>
 
-              <input
-                type="text"
-                placeholder="Oromo Name"
-                value={formData.name.om}
-                onChange={(e) =>
-                  updateNestedField('name', 'om', e.target.value)
-                }
-                className="rounded-lg border px-3 py-2"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Oromo Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Oromo Name"
+                  value={formData.name.om}
+                  onChange={(e) =>
+                    updateNestedField('name', 'om', e.target.value)
+                  }
+                  className="w-full rounded-lg border px-3 py-2"
+                />
+              </div>
             </div>
 
             {/* DESCRIPTION */}
             <textarea
-              placeholder="English Description"
+              placeholder="English Description (Optional)"
               value={formData.description.en}
               onChange={(e) =>
                 updateNestedField('description', 'en', e.target.value)
               }
               className="w-full rounded-lg border px-3 py-2"
               rows={3}
-              required
             />
 
             {/* PRICE + CATEGORY */}
             <div className="grid gap-3 md:grid-cols-2">
 
-              <input
-                type="number"
-                placeholder="Price (ETB)"
-                value={formData.price}
-                onChange={(e) =>
-                  updateField('price', Number(e.target.value) || 0)
-                }
-                className="rounded-lg border px-3 py-2"
-                required
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price (ETB) *
+                </label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={formData.price}
+                  onChange={(e) =>
+                    updateField('price', Number(e.target.value) || 0)
+                  }
+                  className="w-full rounded-lg border px-3 py-2"
+                  required
+                />
+              </div>
 
-              <select
-                value={formData.category}
-                onChange={(e) =>
-                  updateField('category', e.target.value)
-                }
-                className="rounded-lg border px-3 py-2"
-              >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Category *
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={(e) =>
+                    updateField('category', e.target.value)
+                  }
+                  className="w-full rounded-lg border px-3 py-2"
+                >
                 <option value="burgers">Burgers</option>
                 <option value="sides">Sides</option>
                 <option value="drinks">Drinks</option>
@@ -404,16 +435,64 @@ function MenuItemForm({
                 <option value="desserts">Desserts</option>
                 <option value="breakfast">Breakfast</option>
               </select>
+              </div>
             </div>
 
             {/* IMAGE */}
-            <input
-              type="text"
-              placeholder="Image URL (Supabase Storage)"
-              value={formData.img}
-              onChange={(e) => updateField('img', e.target.value)}
-              className="w-full rounded-lg border px-3 py-2"
-            />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Item Image
+              </label>
+              
+              {formData.img ? (
+                <div className="relative">
+                  <img
+                    src={formData.img}
+                    alt="Current item image"
+                    className="h-32 w-32 object-cover rounded-lg border"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <div className="text-center">
+                    <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mt-2">
+                      <label htmlFor="file-upload" className="cursor-pointer">
+                        <span className="mt-2 block text-sm font-medium text-gray-900">
+                          {uploading ? 'Uploading...' : 'Click to upload image'}
+                        </span>
+                        <input
+                          id="file-upload"
+                          name="file-upload"
+                          type="file"
+                          className="sr-only"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          onChange={handleFileSelect}
+                          disabled={uploading}
+                        />
+                      </label>
+                      <p className="mt-1 text-xs text-gray-500">
+                        PNG, JPG, WebP up to 5MB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {uploading && (
+                <div className="flex items-center gap-2 text-sm text-blue-600">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  Uploading image...
+                </div>
+              )}
+            </div>
 
             {/* FLAGS */}
             <div className="flex flex-wrap gap-4 text-sm">

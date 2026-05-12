@@ -4,6 +4,7 @@ import { MenuItem, Item, CATEGORY_MAP } from '@/types/menu';
 // Transform database MenuItem to frontend Item format
 export const transformMenuItemToItem = (menuItem: MenuItem): Item => {
   return {
+    id: menuItem.id,
     name: {
       en: menuItem.name_en,
       am: menuItem.name_am,

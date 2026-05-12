@@ -48,6 +48,7 @@ export interface Feedback {
 
 // Combined item type for frontend (with legacy compatibility)
 export type Item = {
+  id: string;
   name: LangText;
   price: number;
   img: string;

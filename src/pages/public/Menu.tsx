@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useImageCache } from "@/utils/imageCache";
 import CachedImage from "@/components/CachedImage";
+import { debugImageSystem, testImageUrl } from "@/utils/imageDebug";
+import { getLocalizedText, getCategoryName } from "@/utils/languageFallback";
 
 import heroBurger from "@/assets/hero-burger.jpg";
 import burgerSingle from "@/assets/burger-single.jpg";
@@ -24,7 +26,7 @@ import {
 // Helper to get category keys
 const CATEGORY_KEYS: CategoryKey[] = ['all', 'burgers', 'sides', 'drinks', 'chicken', 'desserts', 'breakfast'];
 
-// Category images mapping
+// Category images mapping for filters
 const CATEGORY_IMAGES = {
   all: heroBurger,
   burgers: burgerSingle,
@@ -54,12 +56,20 @@ function ItemDetail({
       <div className="mx-auto min-h-screen max-w-lg bg-white">
         {/* IMAGE */}
         <div className="relative h-80 overflow-hidden">
-          <CachedImage 
-            src={item.img} 
-            alt={item.name[lang]} 
-            className="h-full w-full object-cover"
-            preload={true}
-          />
+          {item.img ? (
+            <CachedImage 
+              src={item.img} 
+              alt={item.name[lang]} 
+              className="h-full w-full object-cover"
+              preload={true}
+            />
+          ) : (
+            <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+              <svg className="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+          )}
 
           <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent" />
 
@@ -72,10 +82,10 @@ function ItemDetail({
 
           <div className="absolute bottom-5 left-5 right-5">
             <p className="text-xs uppercase tracking-[0.2em] text-white/80">
-              {CATEGORY_MAP[item.category as keyof typeof CATEGORY_MAP]?.[lang] || item.category}
+              {getCategoryName(item.category, lang, CATEGORY_MAP)}
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-white">{item.name[lang]}</h2>
+            <h2 className="mt-2 text-3xl font-bold text-white">{getLocalizedText(item.name, lang)}</h2>
           </div>
         </div>
 
@@ -116,7 +126,7 @@ function ItemDetail({
           </div>
 
           {/* DESCRIPTION */}
-          <p className="mt-5 text-sm leading-7 text-muted-foreground">{item.description[lang]}</p>
+          <p className="mt-5 text-sm leading-7 text-muted-foreground">{getLocalizedText(item.description, lang)}</p>
 
           {/* INGREDIENTS */}
           {item.ingredients && (
@@ -130,7 +140,7 @@ function ItemDetail({
                     className="flex items-center justify-between rounded-2xl bg-secondary/40 px-4 py-4"
                   >
                     <span className="text-sm font-medium text-foreground">
-                      {ingredient.name[lang]}
+                      {getLocalizedText(ingredient.name, lang)}
                     </span>
 
                     <span className="text-xs font-semibold text-muted-foreground">
@@ -148,12 +158,12 @@ function ItemDetail({
               <h3 className="text-sm font-semibold text-foreground">Add Ons</h3>
 
               <div className="mt-4 space-y-3">
-                {item.addOns.map((addon) => (
+                {item.addOns?.map((addon) => (
                   <div
                     key={addon.name.en}
                     className="flex items-center justify-between rounded-2xl border border-border px-4 py-4"
                   >
-                    <span className="text-sm font-medium text-foreground">{addon.name[lang]}</span>
+                    <span className="text-sm font-medium text-foreground">{getLocalizedText(addon.name, lang)}</span>
 
                     <span className="text-xs font-semibold text-primary">+ {addon.price} ETB</span>
                   </div>
@@ -204,7 +214,17 @@ export default function Menu() {
   useEffect(() => {
     const loadMenuItems = async () => {
       try {
+        // Debug image system
+        await debugImageSystem();
+        
         const menuItems = await getMenuItems();
+        console.log('Loaded menu items:', menuItems);
+        
+        // Test first image URL if exists
+        if (menuItems.length > 0 && menuItems[0].img) {
+          testImageUrl(menuItems[0].img);
+        }
+        
         setItems(menuItems);
       } catch (error) {
         console.error('Error loading menu items:', error);
@@ -254,8 +274,11 @@ export default function Menu() {
       const q = query.toLowerCase();
 
       filteredItems = filteredItems.filter(
-        (i: Item) =>
-          i.name[lang].toLowerCase().includes(q) || i.description[lang].toLowerCase().includes(q),
+        (i: Item) => {
+          const name = getLocalizedText(i.name, lang);
+          const description = getLocalizedText(i.description, lang);
+          return name.toLowerCase().includes(q) || description.toLowerCase().includes(q);
+        },
       );
     }
 
@@ -455,19 +478,29 @@ export default function Menu() {
               onClick={() => setSelected(item)}
               className="group flex w-full gap-4 rounded-3xl border border-border/80 bg-white p-3 text-left shadow-sm transition duration-200 hover:-translate-y-px hover:shadow-md active:scale-[0.995]"
             >
-              <CachedImage
-                src={item.img}
-                alt={item.name[lang]}
-                className="h-24 w-24 rounded-2xl object-cover"
-              />
+              <div className="h-24 w-24 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
+                {item.img ? (
+                  <CachedImage
+                    src={item.img}
+                    alt={item.name[lang]}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+                    <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                  </div>
+                )}
+              </div>
 
               <div className="flex flex-1 flex-col">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground">{item.name[lang]}</h3>
+                    <h3 className="text-sm font-semibold text-foreground">{getLocalizedText(item.name, lang)}</h3>
 
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {CATEGORY_MAP[item.category as keyof typeof CATEGORY_MAP]?.[lang]}
+                      {getCategoryName(item.category, lang, CATEGORY_MAP)}
                     </p>
 
                     <div className="mt-2 flex gap-1">
@@ -491,7 +524,7 @@ export default function Menu() {
                 </div>
 
                 <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                  {item.description[lang]}
+                  {getLocalizedText(item.description, lang)}
                 </p>
 
                 <div className="mt-auto pt-3">
