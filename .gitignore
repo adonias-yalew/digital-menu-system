@@ -1,0 +1,85 @@
+# =========================
+# Logs
+# =========================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =========================
+# Dependencies
+# =========================
+node_modules
+
+# =========================
+# Build outputs
+# =========================
+dist
+dist-ssr
+build
+.output
+.vinxi
+.tanstack/**
+.nitro
+
+# =========================
+# Environment files (IMPORTANT)
+# =========================
+.env
+.env.*
+!.env.example
+
+# Supabase / secrets
+supabase/.temp
+supabase/.branches
+supabase/.env
+
+# =========================
+# Local / system files
+# =========================
+*.local
+.DS_Store
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =========================
+# Cloud / deployment
+# =========================
+.wrangler/
+.dev.vars
+
+# =========================
+# Coverage / testing (future-proof)
+# =========================
+coverage
+*.lcov
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+
+# =========================
+# Optional: Vite cache
+# =========================
+.vite
+
+# =========================
+# Security (important)
+# =========================
+*.pem
+*.key

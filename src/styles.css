@@ -1,0 +1,255 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+@theme inline {
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Semantic Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-destructive: var(--destructive);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+/* =========================================
+   LIGHT THEME
+========================================= */
+
+:root {
+  /* Backgrounds */
+  --background: #f7f7f8;
+  --foreground: #111827;
+
+  --card: #ffffff;
+  --card-foreground: #111827;
+
+  /* Brand */
+  --primary: #dc2626;
+  --primary-foreground: #ffffff;
+
+  /* Supporting */
+  --secondary: #f1f3f5;
+  --secondary-foreground: #374151;
+
+  --muted: #eef0f2;
+  --muted-foreground: #6b7280;
+
+  /* States */
+  --destructive: #dc2626;
+
+  /* UI */
+  --border: #e5e7eb;
+  --input: #dfe3e8;
+  --ring: #dc2626;
+
+  /* Extra Professional Tokens */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  --container-width: 1200px;
+}
+
+/* =========================================
+   DARK THEME
+========================================= */
+
+.dark {
+  --background: #0f1115;
+  --foreground: #f3f4f6;
+
+  --card: #171a21;
+  --card-foreground: #f3f4f6;
+
+  --primary: #ef4444;
+  --primary-foreground: #ffffff;
+
+  --secondary: #1f2430;
+  --secondary-foreground: #d1d5db;
+
+  --muted: #202531;
+  --muted-foreground: #9ca3af;
+
+  --destructive: #ef4444;
+
+  --border: #2b3240;
+  --input: #2b3240;
+  --ring: #ef4444;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* =========================================
+   BASE
+========================================= */
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+
+  font-family: var(--font-sans);
+
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01";
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Better default border handling */
+* {
+  border-color: var(--border);
+}
+
+/* Selection */
+::selection {
+  background: var(--primary);
+  color: white;
+}
+
+/* =========================================
+   COMPONENT STYLES
+========================================= */
+
+@layer components {
+  .app-container {
+    width: 100%;
+    max-width: var(--container-width);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  .card-clean {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .input-clean {
+    width: 100%;
+    border: 1px solid var(--input);
+    background: var(--card);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .input-clean:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+  }
+
+  .button-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--radius-md);
+
+    background: var(--primary);
+    color: var(--primary-foreground);
+
+    padding: 0.75rem 1rem;
+
+    font-weight: 600;
+
+    transition:
+      transform 0.15s ease,
+      opacity 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .button-primary:hover {
+    opacity: 0.95;
+  }
+
+  .button-primary:active {
+    transform: scale(0.98);
+  }
+
+  .button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--border);
+
+    background: var(--card);
+    color: var(--foreground);
+
+    border-radius: var(--radius-md);
+
+    padding: 0.75rem 1rem;
+
+    font-weight: 500;
+
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .button-secondary:hover {
+    background: var(--secondary);
+  }
+}
+
+/* =========================================
+   UTILITIES
+========================================= */
+
+@layer utilities {
+  .border-subtle {
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+
+  .text-soft {
+    color: var(--muted-foreground);
+  }
+
+  .shadow-clean {
+    box-shadow: var(--shadow-md);
+  }
+
+  .surface-blur {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
